@@ -1,0 +1,272 @@
+---
+title: "**My Favorite Songs and I: A Quick Introduction**"
+knit: (function(input_file, encoding) {
+    out_dir <- 'docs';
+    rmarkdown::render(input_file,
+      encoding=encoding,
+      output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+author: "Kata Sik"
+date: "2022-09-01"
+output: 
+  html_document:
+   theme: sandstone
+   code_download: true
+   toc: true
+   toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## **Introduction and Purpose**
+
+This is a short introduction to who I am and how I work, prepared by subjecting my 100 favorite work songs to statistical analyses and examining some of the key features the songs have: tempo, energy, popularity, danceability, and speechiness. The analysis sparked my curiosity, so I also prepared a correlation heatmap and table examining the strength of relationship between the audio features of my favorite songs.
+
+The next section will provide a quick overview of how to use and navigate the page, followed by a short summary of my methodology. The 'Features' section will provide some descriptive statistics and interpretation of my findings, and you can find the correlation heatmap and table, along with the interpretation under the 'Correlations between Features' section. In the 'Further Analyses' section, you can find a link that leads to another analysis regarding this dataset that I conducted in Python.
+
+### **How to Use**
+
+If you open the page from a computer, laptop or tablet, you can navigate the page quickly by clicking on the relevant sections on the left hand-side of the screen. If you open the page from a phone, you see the navigation sections at the top of the screen. In the ‘Features’ section, you can switch between the tabs under the title to see the short, feature-specific summaries of my findings. Other than that, just keep scrolling down.
+
+
+### **Methodology**
+
+Following the collection of my 100 favorite work songs in a Spotify playlist, I exported the tracks’ audio features data via [Exportify](https://exportify.net/) into a CSV file. The raw data can be found in my [introduction](https://github.com/katasik/introduction) public repository on GitHub.
+
+Before preparing the data for analysis, I created a home for visualizing and communicating my findings in the form of an RMardkdown HTML file, which I hosted on Github.
+
+For surfacing insights from the data, I relied on select packages from tidyverse in RStudio to do most of the work, using:
+<br>
+<br>
+
++	**readr** to import the data; <br> <br>
++	**dplyr** to do some cleaning; and <br> <br>
++	**ggplot2** to visualize descriptive statistics and the heatmap <br> <br>
+
+Tidyverse didn’t have everything I needed, so I also used: <br> <br>
+
++ **stats** for variable significant testing;<br> <br>
+
++	**reshape2** for preparing the data for a correlation heatmap visual; and <br> <br>
+
++	**Hmisc** to create the correlation table <br> <br>
+
+For interpreting the results, I used [Spotify’s codebook for the tracks’ audio features](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-audio-features).
+
+After wrapping up everything else, I put the final touches on the formatting by writing some code in HTML to make sure the page looked nice and tidy.
+
+You can take a look at the code I have written by clicking ‘**Download RMD**’ under ‘**Code**’ in the top right-hand corner of the page.
+
+With all that done, let’s dive in!
+
+<br>
+
+
+```{r setup, include=TRUE, echo=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Loading in tidyverse library, mainly for readr, dplyr and ggplot2 packages
+library(tidyverse)
+library(stats)
+library(reshape2)
+library(Hmisc)
+
+
+#Loading in data for of top 100 album, which I exported from exoportify.net
+data<- read_csv("data/top_100.csv")
+
+```
+
+
+## **Features' Analyses** {.tabset}
+
+### **Tempo**
+
+```{r Tempo, include=TRUE, echo=TRUE, message=FALSE}
+
+#PLotting the tempo level of songs
+ggplot(data, aes(Tempo)) + 
+  geom_histogram(fill = "darkseagreen4", bins = 20) +
+  geom_vline(aes(xintercept = mean(Tempo)),col='black',size=1) +
+  labs(title='Tempo of top 100 favorite work songs', x='Tempo level of songs', y='Number of songs in album')+
+  geom_text(aes(x=mean(Tempo) +5, label=paste0("Mean\n",round(mean(Tempo), 2)), y=1), color = "white", size = 3) +
+  theme_classic()
+
+
+```
+
+Tempo is the speed or pace of a song, indicating the number of beats per minute. With a mean tempo of 120.77, it seems my songs have a hearty pace to them.
+
+In the Baroque period, my songs would have probably been categorized as ‘[Allegro](https://en.wikipedia.org/wiki/Tempo)’, translated from the original Italian as ‘cheerful’ or ‘jolly’. Like my music, I walk with a **playful** spark in my stride and work at a healthy pace as I dig into the data, while also knowing how to slow down, take a step back and look at the bigger picture.
+
+
+<br>
+
+### **Energy** 
+
+```{r energy, include=TRUE, echo=TRUE, message=FALSE}
+
+#PLotting the energy level of songs
+ggplot(data, aes(Energy)) + 
+  geom_histogram(fill = "burlywood3", bins = 20) +
+  geom_vline(aes(xintercept = mean(Energy)),col='black',size=1) +
+  labs(title='Energy of top 100 favorite work songs', x='Energy level of songs', y='Number of songs in album')+
+  geom_text(aes(x=mean(Energy) + 0.04, label=paste0("Mean\n",round(mean(Energy), 2)), y=1), color = "white", size = 3) +
+  theme_classic()
+
+
+```
+
+
+Energy represents the intensity and ‘activeness’ of a song, on a scale from 0 to 1. For instance, a loud quick metal song would have a higher score on the scale, compared to a mellow piece of classical music.
+
+Showing a mean energy level of 0.64, the songs I like are upbeat and energetic, just like me. I bring calm energy to everything I do, and I keep that energy and **passion** up even when the going gets tough, preserving my resilience. But as someone who likes to move quick, I also know how to slow down to recharge (for example with some more relaxing music).
+
+
+<br>
+
+### **Popularity**
+
+```{r popularity, include=TRUE, echo=TRUE, message=FALSE}
+
+#PLotting the popularity level of songs
+ggplot(data, aes(Popularity)) + 
+  geom_histogram(fill = "lightsalmon2", bins = 20) +
+  geom_vline(aes(xintercept = mean(Popularity)),col='black',size=1) +
+  labs(title='Popularity of top 100 favorite work songs', x='Popularity of songs', y='Number of songs in album')+
+  geom_text(aes(x=mean(Popularity) + 3, label=paste0("Mean\n",round(mean(Popularity), 2)), y=1), color = "white", size = 3) +
+  theme_classic()
+
+```
+
+The popularity score of a song, ranging from 0 to 100, is calculated based on the total number of times the track has been played, and how recent those plays are.
+
+With a mean popularity of 47.88, I seem to prefer slightly less popular music than most people, while also appreciating what the mainstream can offer. I keep an eye on what is popular, but I like to think outside the box. I am curious and **innovative**, I look for new ideas, new experiences, I don’t just follow what others are doing.
+
+
+<br>
+
+### **Danceability** 
+
+```{r danceability, include=TRUE, echo=TRUE, message=FALSE}
+
+#PLotting the danceability level of songs
+ggplot(data, aes(Danceability)) + 
+  geom_histogram(fill = "slategray3", bins = 20) +
+  geom_vline(aes(xintercept = mean(Danceability)),col='black',size=1) +
+  labs(title='Danceability of top 100 favorite work songs', x='Danceability of songs', y='Number of songs in album')+
+  geom_text(aes(x=mean(Danceability) + 0.03, label=paste0("Mean\n",round(mean(Danceability), 2)), y=1), color = "white", size = 3) +
+  theme_classic()
+
+```
+
+
+Danceability describes how suitable is a song for dancing, based on a combination of musical elements (e.g., tempo), scored from 0 to 1, with 1 being most danceable.
+
+With a mean score of 0.59, I fall a bit above the average in preferring danceable songs. I like to think that I am equally comfortable with flying solo and working with others to put on a show. But just like dancing, surfacing insights from data is much more fun when you do it **collaboratively** with your band, rather than alone.
+
+<br>
+
+
+### **Speechiness**
+
+```{r loudness, include=TRUE, echo=TRUE, message=FALSE}
+
+#PLotting the speechiness level of songs
+ggplot(data, aes(Speechiness)) + 
+  geom_histogram(fill = "thistle", bins = 20) +
+  geom_vline(aes(xintercept = mean(Speechiness)),col='black',size=1) +
+  labs(title='Speechiness of top 100 favorite work songs', x='Speechiness of songs', y='Number of songs in album')+
+  geom_text(aes(x=mean(Speechiness) + 0.02, label=paste0("Mean\n",round(mean(Speechiness), 2)), y=2), color = "white", size = 3) +
+  theme_classic()
+
+```
+
+Speechiness considers the number of spoken words in a track. Placed on a scale from 0 to 1.0, songs or audio recordings with more speech will likely score above 0.66, while more instrumental tracks with less speech, will likely have a score below 0.33. 
+
+With a score of 0.07, I seem to have a strong preference for more instrumental music that brings the right vibes without distracting me from my work. Like my songs, I use few words to make my point when I do analyses. I communicate my findings **sincerely**, succinctly, in an accessible manner, letting the data speak for itself. When it comes to interacting with my colleagues, however, I am quite chatty and love to talk someone’s ear off over a cup of coffee or lunch.
+
+<br>
+
+## **Correlations between Features**
+
+
+While going through the data, I got curious and wanted to look at the correlations between the different features of my favorite work tracks. I was most interested in whether there was a connection between the popularity of the songs and other features. Going into the analysis (without much actual empirical evidence), my main hypothesis was that the danceability of songs would be positively associated with popularity, meaning that the more danceable the songs are, the higher they would be on the popularity scale. I thought everybody likes to dance, so it follows logically that the more popular songs would be more danceable. To find out, I first plotted the relationships on a correlation heatmap.
+
+
+To analyze whether there are meaningful relationships between features, we can test them applying correlations. A preliminary requirement for the traditional correlation method (Pearson correlation) is that the sampling distribution needs to be normally distributed. [This is the case](https://www.discoveringstatistics.com/books/discovering-statistics-using-r/) if the variables are normally distributed. This just means that the histograms above should resemble a bell curve (similar to the danceability figure shown under *Features' Analyses"). 
+
+Based on the visuals above, we can see that some of the variables (e.g., speechiness) are obviously not normally distributed (i.e., they don't follow the bell curve). We can analyze whether this is the case with a statistical test, called Shapiro-Wilk test. If we find that the test is significant (i.e., the *p* value is lower than 0.05), it means that the distribution significantly differs from normal. 
+
+
+```{r shapiro tests, include=FALSE, echo=TRUE, message=FALSE}
+#testing normality of variables
+shapiro.test(data$Tempo)
+shapiro.test(data$Energy)
+shapiro.test(data$Popularity)
+shapiro.test(data$Danceability)
+shapiro.test(data$Speechiness)
+
+```
+
+According to the Shapiro-Wilk tests, except for danceability (*p* = .429), all features differed significantly from normal (tempo - *p* = .024; energy - *p* = .001; popularity - *p* < .001; speechiness - *p* = < .001). This means, that we need to apply non-parametric tests, more specifically an alternative test that doesn't require the variables to be normally distributed (i.e., Spearman correlations instead of Pearson correlations). Thus, let's explore Spearman correlations with a heatmap.
+
+### **Correlation Heatmap**
+
+```{r heatmap, include=TRUE, echo=TRUE, message=FALSE}
+
+cor_data<- data %>% 
+  select(Tempo, Energy, Popularity, Danceability, Speechiness)
+
+
+# creating correlation matrix
+corr_mat <- round(cor(cor_data, method = "spearman"),2)
+ 
+# reduce the size of correlation matrix
+melted_corr_mat <- melt(corr_mat)
+ 
+# plotting the correlation heatmap
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
+                                   fill=value)) +
+geom_tile() +
+  scale_fill_gradient('Strength', limits=c(-1, 1),
+                      low = "white", high = "darkseagreen4") +
+geom_text(aes(Var2, Var1, label = value),
+          color = "black", size = 3) +
+  labs(title='Correlation between Features', x='', y='')
+
+```
+
+<br>
+
+The heatmap shows numbers between -1 and +1. This is the case, because the strength of the correlation can range between these two numbers. The plus sign means that the correlation is positive, while the minus sign means that the correlation is negative. The closer the number is to 1, the stronger the relationship is. 
+
+From the heatmap we can see a few weak-to-moderate correlations between some features. Interestingly, my hypothesis around danceability and popularity does not seem to be supported by the data. In fact, there is a very small negative relationship (*r* = -.02) between the two features. Intrigued, I decided to investigate further.
+
+
+In order to see which relationships between the features are significant (i.e., where the *p* value is lower than 0.05), I used the data to prepare a correlation table, showing Spearman correlation coefficients (i.e., the relationship's strength) in the upper part of the table (*r*) and significance values in the lower part of the table (*p*).
+
+
+### **Correlation Table**
+```{r correlation, include=TRUE, echo=TRUE, message=FALSE}
+
+rcorr(data.matrix(data[, c("Tempo", "Energy", "Popularity", "Danceability", "Speechiness")]),
+             type = "spearman")
+
+
+```
+
+<br>
+
+From the table, we can see that the very small negative relationship between my songs’ danceability and popularity is not significant (*p* = .821) - thus my hypothesis was not supported by the data. As I did not have any empirical evidence to support my preliminary hypothesis, I'm not too surprised that these features are not correlated. Furthermore, none of the other features are significantly related to the songs' popularity, so it seems like the popularity feature depends on other factors, not explored in my analyses.
+
+However, we can see a significant negative (and in this dataset, the strongest, *r* = -.32, *p* = .001) relationship between danceability and tempo. To me, this was a bit surprising at first, because I thought the speed of the music would be positively related to danceability. However, upon further introspection, I realized that death metal tracks with extremely high beat tempos are probably difficult to dance to - makes sense. 
+
+Next, there is a weak-to-moderate significant positive (*r* = .26, *p* = .008) relationship between the level of energy and speechiness of the songs. I think this makes sense, as instrumental sons are more calming, while speechy songs (e.g., rap hits) are more energetic. 
+
+
+Lastly, we can also see a weak-to-moderate significant positive (*r* = .26, *p* = .009) relationship between danceability and speechiness: the higher the speechiness of the tracks, the more danceable they are. Seems logical, after all I am sure we have all jumped and danced at a concert, shouting the lyrics along with the band at least once in our lives. Or, at the very least, we should. 
+
+## **Further Analyses**
+
+I further investigated this dataset in Python and built a machine learning linear model to predict the songs danceability level as a function of their tempo. In case you are interested in how my model performed, you can find the analyses [here](https://github.com/katasik/spotify_playlist). 
+
